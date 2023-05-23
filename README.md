@@ -14,3 +14,9 @@ Click on the Settings tab and scroll down to the GitHub Pages section.
 Then select the master branch source and click on the Save button.
 
 ![](https://pages.github.com/images/source-setting@2x.png)
+
+# Génération du programme de conférences
+
+```bash
+scripts/generateProgramme.py programme.csv programme.json
+```

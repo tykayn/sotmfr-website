@@ -16,9 +16,11 @@ const timezone_name = "Europe/Paris";
 const language = "fr";
 
 // Les jours
-const days = ["2022-06-10", "2022-06-11", "2022-06-12"];
+const days = ["2023-06-09", "2023-06-10", "2023-06-11"];
 const dayNames = [...new Set(programme.map(o => o.horaire.substr(0, 2)))];
 if (days.length != dayNames.length) throw "Error: number of days";
+
+const today = new Date();
 
 // Détail du programme
 const obj = {
@@ -28,16 +30,16 @@ const obj = {
             "@version": "0.7"
         },
         conference: {
-            acronym: "SotM-fr2022",
-            title: "State Of The Map France 2022",
-            venue: "Université de Nantes - Campus du Tertre",
-            city: "Nantes",
+            acronym: `SotM-fr${today.getFullYear()}`,
+            title: `State Of The Map France ${today.getFullYear()}`,
+            venue: "Marseille",
+            city: "Marseille",
             start: days[0],
             end: days[days.length - 1],
             days: days.length,
             timeslot_duration: "00:30:00",
             time_zone_name: timezone_name,
-            base_url: "https://sotm2022.openstreetmap.fr"
+            base_url: `https://sotm${today.getFullYear()}.openstreetmap.fr`
         }
     }
 };

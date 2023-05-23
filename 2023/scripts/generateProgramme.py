@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import json
 import csv
 import sys
@@ -55,79 +56,85 @@ from typing import List, Union
 # 39 renseignements complementaires
 
 if len(sys.argv) < 2:
-    print('Usage: generateProgramme.py <csv input> <json output>\n')
-    print('Example: generateProgramme.py programme.csv programme.json\n')
-    print(
-        'The json programme should already have the time, name, number, and room for the output to be complete'
-    )
-    sys.exit(1)
+	print('Usage: generateProgramme.py <csv input> <json output>\n')
+	print('Example: generateProgramme.py programme.csv programme.json\n')
+	print(
+		'The json programme should already have the time, name, number, and room for the output to be complete'
+	)
+	sys.exit(1)
 
 TAGS = {
-    24: 'Communauté',
-    25: 'Animer',
-    26: 'Contribuer',
-    27: 'Utiliser',
-    28: 'Visualiser',
-    29: 'Outils',
-    30: 'Cartographie',
-    31: 'Géomatique',
-    32: 'Adresses',
-    33: 'Humanitaire',
-    34: 'Indoor',
-    35: 'Territoires',
-    36: 'Mobilités',
-    37: 'Plein-air',
-    38: 'Enseignement et recherche',
+	24: 'Communauté',
+	25: 'Animer',
+	26: 'Contribuer',
+	27: 'Utiliser',
+	28: 'Visualiser',
+	29: 'Outils',
+	30: 'Cartographie',
+	31: 'Géomatique',
+	32: 'Adresses',
+	33: 'Humanitaire',
+	34: 'Indoor',
+	35: 'Territoires',
+	36: 'Mobilités',
+	37: 'Plein-air',
+	38: 'Enseignement et recherche',
 }
 
-with open(sys.argv[1], 'r',
-          encoding='utf-8') as csvfile, open(sys.argv[2],
-                                             'r',
-                                             encoding='utf-8') as jsonfile:
-    progjson: List[dict[str, Union[str, List]]] = json.load(jsonfile)
-    progcsv = csv.reader(csvfile, delimiter=',')
-    next(progcsv)  # skip header
+with open(sys.argv[1], 'r',encoding='utf-8') as csvfile,open(sys.argv[2],'r',encoding='utf-8') as jsonfile:
 
-    for row in progcsv:
-        for event in progjson:
-            if event.get('numero', 0) == row[0]:
-                conferenciers: str = ''
-                for i in [3, 7, 11]:
-                    if row[i] != '':
-                        conferenciers += row[i].title() + ', '
+	print('------- csv file: ', sys.argv[1])
+	print('------- json file: ', sys.argv[2])
+	progjson: List[dict[str, Union[str, List]]] = json.load(jsonfile)
+	program_csv = csv.reader(csvfile, delimiter=';')
+	next(program_csv)  # skip header
 
-                conferenciers = conferenciers[:-2]  # trim last comma
-                event['conferencier'] = conferenciers
+	for row in program_csv:
+# 		print('------ conférence :', row)
 
-                organisations: str = ''
-                for i in [4, 8, 12]:
-                    if row[i] != '':
-                        if row[i] not in organisations:  # in case several spaker have the same company
-                            organisations += row[i] + ', '
+		for event in progjson:
+			if event.get('numero', 0) == row[0]:
+				conferenciers: str = ''
+				for i in [3, 7, 11]:
+					if row[i] != '':
+						conferenciers += row[i].title() + ', '
 
-                organisations = organisations[:-2]  # trim last comma
-                event['organisation'] = organisations
+				conferenciers = conferenciers[:-2]  # trim last comma
+				event['conferencier'] = conferenciers
 
-                event['description'] = row[22]
+				organisations: str = ''
+				for i in [4, 8, 12]:
+					if row[i] != '':
+						if row[i] not in organisations:  # in case several spaker have the same company
+							organisations += row[i] + ', '
 
-                eventTags: List[str] = []
+				organisations = organisations[:-2]  # trim last comma
+				event['organisation'] = organisations
 
-                if 'Intermédiaire' in row[23]:
-                    eventTags.append('Intermédiaire')
-                else:
-                    eventTags.append(row[23])
+				event['description'] = row[22]
 
-                for i in range(24, 39):
-                    if row[i] != '':
-                        eventTags.append(TAGS[i])
+				eventTags: List[str] = []
 
-                event['tags'] = eventTags
+				if 'Intermédiaire' in row[23]:
+					eventTags.append('Intermédiaire')
+				else:
+					eventTags.append(row[23])
 
-        # not breaking the loop because there might be an event cut in two
+				for i in range(24, 39):
+					if row[i] != '':
+						eventTags.append(TAGS[i])
 
-    # not using json.dump because it puts \\n in strings instead of \n
-    f = open(sys.argv[2], 'w', encoding='utf-8')
-    f.write(
-        json.dumps(progjson, indent=4,
-                   ensure_ascii=False).replace(r'\\n', r'\n'))
-    f.close()
+				event['tags'] = eventTags
+
+		# not breaking the loop because there might be an event cut in two
+
+	# not using json.dump because it puts \\n in strings instead of \n
+	print('done converting, writing file'+ sys.argv[2])
+
+	f = open(sys.argv[2], 'w', encoding='utf-8')
+	content = json.dumps(progjson, indent=4, ensure_ascii=False).replace(r'\\n', r'\n')
+	print('content: ',content)
+
+	f.write(content)
+
+	f.close()
